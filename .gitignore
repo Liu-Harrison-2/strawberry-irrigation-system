@@ -3,9 +3,13 @@
 *.iml
 .vscode/
 
-# Office临时文件
+# Office文件
 ~$*
 *.tmp
+*.docx
+*.doc
+*.pptx
+*.xlsx
 
 # 操作系统文件
 .DS_Store
