@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
  * 定义用户的基本信息和业务属性
  */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor // 添加无参构造方法
+@AllArgsConstructor  // 添加全参构造方法
 public class User {
 
     /**
@@ -76,14 +76,14 @@ public class User {
      */
     private String remark;
 
-    // 构造方法：创建新用户时使用
+    // 构造方法：创建新用户时使用（默认为未激活状态）
     public User(String username, String realName, String phone, String email, String userType) {
         this.username = username;
         this.realName = realName;
         this.phone = phone;
         this.email = email;
         this.userType = userType;
-        this.status = SystemConstants.USER_STATUS_ACTIVE;
+        this.status = SystemConstants.USER_STATUS_INACTIVE; // 初始状态为未激活状态
         this.createTime = LocalDateTime.now();
         this.updateTime = LocalDateTime.now();
     }

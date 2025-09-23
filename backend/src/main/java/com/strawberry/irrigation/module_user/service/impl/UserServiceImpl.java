@@ -22,20 +22,20 @@ import java.util.stream.Collectors;
  * 用户服务实现类
  * 处理用户管理的核心业务逻辑
  */
-@Slf4j
-@Service
-@RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Slf4j //添加输出日志
+@Service 
+@RequiredArgsConstructor //自动生成构造函数
+@Transactional(readOnly = true) //只读事务
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
     @Override
-    @Transactional
+    @Transactional // 方法级别：覆盖类级别设置，使用读写事务支持数据修改
     public UserResponse createUser(UserCreateRequest request) {
         log.info("开始创建用户，用户名: {}", request.getUsername());
 
-        // 1. 业务规则校验
+        // 1. 校验用户类型和手机号手机号
         validateCreateRequest(request);
 
         // 2. 检查用户名是否已存在
@@ -216,8 +216,8 @@ public class UserServiceImpl implements UserService {
      */
     private void validateUpdateRequest(UserUpdateRequest request, User existingUser) {
         // 如果要更新手机号，检查是否与其他用户冲突
-        if (StringUtils.hasText(request.getPhone()) &&
-                !request.getPhone().equals(existingUser.getPhone())) {
+        if (StringUtils.hasText(request.getPhone()) && //不为空且不为空字符串
+                !request.getPhone().equals(existingUser.getPhone())) {  // 验证原来的手机号是否与更新的不同
             if (userRepository.existsByPhone(request.getPhone())) {
                 throw new BusinessException(SystemConstants.BUSINESS_ERROR_CODE,
                         "手机号 '" + request.getPhone() + "' 已被其他用户使用");
