@@ -3,10 +3,41 @@ server:
 
 spring:
   application:
-    name: backend
+    name: smart-irrigation-backend
+  datasource:
+    url: jdbc:postgresql://localhost:5432/smart_irrigation_db
+    driver-class-name: org.postgresql.Driver
+    username: liuhy
+    password: 123456
 
-  # 暂时禁用数据库自动配置，避免启动报错
+# MyBatis-Plus配置
+mybatis-plus:
+  configuration:
+    # 开启驼峰命名转换
+    map-underscore-to-camel-case: true
+    # 打印SQL日志
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      # 主键生成策略：自增
+      id-type: auto
+      # 逻辑删除字段
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+    # 关闭MyBatis-Plus的Banner
+    banner: false
+  # Mapper XML文件位置
+  mapper-locations: classpath*:/mapper/**/*.xml
+  # 实体类包路径
+  type-aliases-package: com.strawberry.irrigation.**.entity
+
+logging:
+  level:
+    com.strawberry.irrigation: DEBUG
+    com.baomidou.mybatisplus: DEBUG
+
+  # 暂时禁用Redis自动配置，避免启动报错
   autoconfigure:
     exclude:
-      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
       - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration

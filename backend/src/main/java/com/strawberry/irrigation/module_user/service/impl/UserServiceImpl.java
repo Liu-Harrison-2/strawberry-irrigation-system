@@ -1,12 +1,15 @@
 package com.strawberry.irrigation.module_user.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.strawberry.irrigation.common.constants.SystemConstants;
 import com.strawberry.irrigation.common.exception.BusinessException;
+import com.strawberry.irrigation.module_user.dao.UserMapper;
 import com.strawberry.irrigation.module_user.dto.UserCreateRequest;
 import com.strawberry.irrigation.module_user.dto.UserResponse;
 import com.strawberry.irrigation.module_user.dto.UserUpdateRequest;
 import com.strawberry.irrigation.module_user.entity.User;
-import com.strawberry.irrigation.module_user.repository.UserRepository;
 import com.strawberry.irrigation.module_user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,66 +17,85 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * 用户服务实现类
- * 处理用户管理的核心业务逻辑
+ * 使用MyBatis-Plus的QueryWrapper实现查询，充分利用MP的自动查询功能
  */
-@Slf4j //添加输出日志
-@Service 
-@RequiredArgsConstructor //自动生成构造函数
-@Transactional(readOnly = true) //只读事务
+@Slf4j
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     @Override
-    @Transactional // 方法级别：覆盖类级别设置，使用读写事务支持数据修改
+    @Transactional
     public UserResponse createUser(UserCreateRequest request) {
         log.info("开始创建用户，用户名: {}", request.getUsername());
 
-        // 1. 校验用户类型和手机号手机号
+        // 1. 校验用户类型
         validateCreateRequest(request);
 
-        // 2. 检查用户名是否已存在
-        if (userRepository.existsByUsername(request.getUsername())) {
+        // 2. 检查用户名是否已存在 - 使用MP的QueryWrapper
+        QueryWrapper<User> usernameQuery = new QueryWrapper<>();
+        usernameQuery.eq("username", request.getUsername());
+        if (userMapper.selectCount(usernameQuery) > 0) {
             throw new BusinessException(SystemConstants.BUSINESS_ERROR_CODE,
                     "用户名 '" + request.getUsername() + "' 已存在");
         }
 
-        // 3. 检查手机号是否已存在
-        if (userRepository.existsByPhone(request.getPhone())) {
-            throw new BusinessException(SystemConstants.BUSINESS_ERROR_CODE,
-                    "手机号 '" + request.getPhone() + "' 已存在");
+        // 3. 检查邮箱是否已存在（如果提供了邮箱）- 使用MP的QueryWrapper
+        if (StringUtils.hasText(request.getEmail())) {
+            QueryWrapper<User> emailQuery = new QueryWrapper<>();
+            emailQuery.eq("email", request.getEmail());
+            if (userMapper.selectCount(emailQuery) > 0) {
+                throw new BusinessException(SystemConstants.BUSINESS_ERROR_CODE,
+                        "邮箱 '" + request.getEmail() + "' 已存在");
+            }
         }
 
-        // 4. 创建用户实体
+        // 4. 检查手机号是否已存在（如果提供了手机号）- 使用MP的QueryWrapper
+        if (StringUtils.hasText(request.getPhoneNumber())) {
+            QueryWrapper<User> phoneQuery = new QueryWrapper<>();
+            phoneQuery.eq("phone_number", request.getPhoneNumber());
+            if (userMapper.selectCount(phoneQuery) > 0) {
+                throw new BusinessException(SystemConstants.BUSINESS_ERROR_CODE,
+                        "手机号 '" + request.getPhoneNumber() + "' 已存在");
+            }
+        }
+
+        // 5. 创建用户实体
         User user = new User(
                 request.getUsername(),
-                request.getRealName(),
-                request.getPhone(),
+                request.getPassword(), // 后续需要加密
                 request.getEmail(),
+                request.getRealName(),
+                request.getPhoneNumber(),
                 request.getUserType()
         );
         user.setRemark(request.getRemark());
 
-        // 5. 保存用户
-        User savedUser = userRepository.save(user);
+        // 6. 保存用户（MyBatis-Plus会自动填充创建时间和更新时间）
+        userMapper.insert(user);
 
-        log.info("用户创建成功，ID: {}, 用户名: {}", savedUser.getId(), savedUser.getUsername());
-        return new UserResponse(savedUser);
+        log.info("用户创建成功，ID: {}, 用户名: {}", user.getId(), user.getUsername());
+        return new UserResponse(user);
     }
 
     @Override
     public UserResponse getUserById(Long id) {
         log.info("根据ID查询用户: {}", id);
 
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new BusinessException(SystemConstants.BUSINESS_ERROR_CODE,
-                        SystemConstants.USER_NOT_FOUND));
+        // 使用MP的selectById方法
+        User user = userMapper.selectById(id);
+        if (user == null) {
+            throw new BusinessException(SystemConstants.BUSINESS_ERROR_CODE,
+                    SystemConstants.USER_NOT_FOUND);
+        }
 
         return new UserResponse(user);
     }
@@ -82,9 +104,15 @@ public class UserServiceImpl implements UserService {
     public UserResponse getUserByUsername(String username) {
         log.info("根据用户名查询用户: {}", username);
 
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new BusinessException(SystemConstants.BUSINESS_ERROR_CODE,
-                        SystemConstants.USER_NOT_FOUND));
+        // 使用MP的QueryWrapper查询
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("username", username);
+        User user = userMapper.selectOne(queryWrapper);
+
+        if (user == null) {
+            throw new BusinessException(SystemConstants.BUSINESS_ERROR_CODE,
+                    SystemConstants.USER_NOT_FOUND);
+        }
 
         return new UserResponse(user);
     }
@@ -95,20 +123,37 @@ public class UserServiceImpl implements UserService {
         log.info("开始更新用户信息，ID: {}", id);
 
         // 1. 查找用户
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new BusinessException(SystemConstants.BUSINESS_ERROR_CODE,
-                        SystemConstants.USER_NOT_FOUND));
+        User user = userMapper.selectById(id);
+        if (user == null) {
+            throw new BusinessException(SystemConstants.BUSINESS_ERROR_CODE,
+                    SystemConstants.USER_NOT_FOUND);
+        }
 
         // 2. 校验更新请求
         validateUpdateRequest(request, user);
 
-        // 3. 更新用户信息
-        updateUserFields(user, request);
-        user.setUpdateTime(LocalDateTime.now());
+        // 3. 构建更新条件
+        UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("id", id);
 
-        // 4. 保存更新
-        User updatedUser = userRepository.save(user);
+        if (StringUtils.hasText(request.getRealName())) {
+            updateWrapper.set("real_name", request.getRealName());
+        }
+        if (StringUtils.hasText(request.getPhoneNumber())) {
+            updateWrapper.set("phone_number", request.getPhoneNumber());
+        }
+        if (StringUtils.hasText(request.getEmail())) {
+            updateWrapper.set("email", request.getEmail());
+        }
+        if (request.getRemark() != null) {
+            updateWrapper.set("remark", request.getRemark());
+        }
 
+        // 4. 执行更新
+        userMapper.update(null, updateWrapper);
+
+        // 5. 重新查询返回更新后的用户信息
+        User updatedUser = userMapper.selectById(id);
         log.info("用户信息更新成功，ID: {}", updatedUser.getId());
         return new UserResponse(updatedUser);
     }
@@ -119,13 +164,14 @@ public class UserServiceImpl implements UserService {
         log.info("开始删除用户，ID: {}", id);
 
         // 1. 检查用户是否存在
-        if (!userRepository.existsById(id)) {
+        User user = userMapper.selectById(id);
+        if (user == null) {
             throw new BusinessException(SystemConstants.BUSINESS_ERROR_CODE,
                     SystemConstants.USER_NOT_FOUND);
         }
 
-        // 2. 执行删除
-        userRepository.deleteById(id);
+        // 2. 执行删除 - 使用MP的deleteById
+        userMapper.deleteById(id);
 
         log.info("用户删除成功，ID: {}", id);
     }
@@ -134,7 +180,8 @@ public class UserServiceImpl implements UserService {
     public List<UserResponse> getAllUsers() {
         log.info("查询所有用户列表");
 
-        List<User> users = userRepository.findAll();
+        // 使用MP的selectList方法
+        List<User> users = userMapper.selectList(null);
         return users.stream()
                 .map(UserResponse::new)
                 .collect(Collectors.toList());
@@ -152,8 +199,11 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(SystemConstants.BUSINESS_ERROR_CODE, "每页大小必须在1-100之间");
         }
 
-        List<User> users = userRepository.findPage(page, size);
-        return users.stream()
+        // 使用MyBatis-Plus分页插件
+        Page<User> pageParam = new Page<>(page, size);
+        Page<User> userPage = userMapper.selectPage(pageParam, null);
+
+        return userPage.getRecords().stream()
                 .map(UserResponse::new)
                 .collect(Collectors.toList());
     }
@@ -168,9 +218,10 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(SystemConstants.BUSINESS_ERROR_CODE, "无效的用户类型");
         }
 
-        List<User> users = userRepository.findAll().stream()
-                .filter(user -> userType.equals(user.getUserType()))
-                .collect(Collectors.toList());
+        // 使用MP的QueryWrapper查询
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_type", userType);
+        List<User> users = userMapper.selectList(queryWrapper);
 
         return users.stream()
                 .map(UserResponse::new)
@@ -179,18 +230,27 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public long getUserCount() {
-        return userRepository.count();
+        // 使用MP的selectCount方法
+        return userMapper.selectCount(null);
     }
 
     @Override
     public boolean isUsernameExists(String username) {
-        return userRepository.existsByUsername(username);
+        // 使用MP的QueryWrapper检查
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("username", username);
+        return userMapper.selectCount(queryWrapper) > 0;
     }
 
     @Override
     public boolean isPhoneExists(String phone) {
-        return userRepository.existsByPhone(phone);
+        // 使用MP的QueryWrapper检查
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("phone_number", phone);
+        return userMapper.selectCount(queryWrapper) > 0;
     }
+
+
 
     // ========== 私有辅助方法 ==========
 
@@ -205,8 +265,9 @@ public class UserServiceImpl implements UserService {
                     "用户类型只能是 ADMIN 或 FARMER");
         }
 
-        // 校验手机号格式（这里可以添加更多业务规则）
-        if (!request.getPhone().matches("^1[3-9]\\d{9}$")) {
+        // 校验手机号格式（如果提供了手机号）
+        if (StringUtils.hasText(request.getPhoneNumber()) &&
+                !request.getPhoneNumber().matches("^1[3-9]\\d{9}$")) {
             throw new BusinessException(SystemConstants.BUSINESS_ERROR_CODE, "手机号格式不正确");
         }
     }
@@ -216,30 +277,41 @@ public class UserServiceImpl implements UserService {
      */
     private void validateUpdateRequest(UserUpdateRequest request, User existingUser) {
         // 如果要更新手机号，检查是否与其他用户冲突
-        if (StringUtils.hasText(request.getPhone()) && //不为空且不为空字符串
-                !request.getPhone().equals(existingUser.getPhone())) {  // 验证原来的手机号是否与更新的不同
-            if (userRepository.existsByPhone(request.getPhone())) {
+        if (StringUtils.hasText(request.getPhoneNumber()) &&
+                !request.getPhoneNumber().equals(existingUser.getPhoneNumber())) {
+            QueryWrapper<User> phoneQuery = new QueryWrapper<>();
+            phoneQuery.eq("phone_number", request.getPhoneNumber());
+            if (userMapper.selectCount(phoneQuery) > 0) {
                 throw new BusinessException(SystemConstants.BUSINESS_ERROR_CODE,
-                        "手机号 '" + request.getPhone() + "' 已被其他用户使用");
+                        "手机号 '" + request.getPhoneNumber() + "' 已被其他用户使用");
+            }
+        }
+
+        // 如果要更新邮箱，检查是否与其他用户冲突（只在邮箱不为空时检查）
+        if (StringUtils.hasText(request.getEmail()) &&
+                !request.getEmail().equals(existingUser.getEmail())) {
+            QueryWrapper<User> emailQuery = new QueryWrapper<>();
+            emailQuery.eq("email", request.getEmail());
+            if (userMapper.selectCount(emailQuery) > 0) {
+                throw new BusinessException(SystemConstants.BUSINESS_ERROR_CODE,
+                        "邮箱 '" + request.getEmail() + "' 已被其他用户使用");
             }
         }
     }
 
     /**
-     * 更新用户字段
+     * 根据用户名或邮箱查找用户（用于登录）
      */
-    private void updateUserFields(User user, UserUpdateRequest request) {
-        if (StringUtils.hasText(request.getRealName())) {
-            user.setRealName(request.getRealName());
-        }
-        if (StringUtils.hasText(request.getPhone())) {
-            user.setPhone(request.getPhone());
-        }
-        if (StringUtils.hasText(request.getEmail())) {
-            user.setEmail(request.getEmail());
-        }
-        if (request.getRemark() != null) {
-            user.setRemark(request.getRemark());
-        }
+    public User findByUsernameOrEmail(String usernameOrEmail) {
+        log.info("根据用户名或邮箱查询用户: {}", usernameOrEmail);
+
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.and(wrapper -> wrapper
+                .eq("username", usernameOrEmail)
+                .or()
+                .eq("email", usernameOrEmail)
+        );
+
+        return userMapper.selectOne(queryWrapper);
     }
 }

@@ -13,11 +13,11 @@ public class UserUpdateRequest {
     @Size(max = 50, message = "真实姓名长度不能超过50字符")
     private String realName;
 
-    @Pattern(regexp = "^1[3-9]\\d{9}$", message = "手机号格式不正确")
-    private String phone;
+    @Pattern(regexp = "^1[3-9]\\d{9}$|^$", message = "手机号格式不正确")
+    private String phoneNumber;
 
     @Email(message = "邮箱格式不正确")
-    private String email;
+    private String email; // 可选字段
 
     private String remark;
 }

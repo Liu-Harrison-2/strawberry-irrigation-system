@@ -30,7 +30,7 @@ public class UserResponse {
         this.id = user.getId();
         this.username = user.getUsername();
         this.realName = user.getRealName();
-        this.phone = user.getPhone();
+        this.phone = user.getPhoneNumber();
         this.email = user.getEmail();
         this.userType = user.getUserType();
         this.status = user.getStatus();
