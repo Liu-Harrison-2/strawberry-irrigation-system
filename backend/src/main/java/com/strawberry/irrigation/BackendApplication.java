@@ -5,7 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-@MapperScan("com.strawberry.irrigation.**.dao")
+@MapperScan("com.strawberry.irrigation.module_user.dao")
 public class BackendApplication {
 
     public static void main(String[] args) {

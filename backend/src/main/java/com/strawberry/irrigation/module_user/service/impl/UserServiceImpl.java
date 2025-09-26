@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     @Override
-    @Transactional
+    @Transactional //覆盖默认只读事务，使用读写事务
     public UserResponse createUser(UserCreateRequest request) {
         log.info("开始创建用户，用户名: {}", request.getUsername());
 

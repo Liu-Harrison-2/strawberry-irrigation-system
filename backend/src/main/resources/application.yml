@@ -9,6 +9,10 @@ spring:
     driver-class-name: org.postgresql.Driver
     username: liuhy
     password: 123456
+  # 暂时禁用Redis自动配置，避免启动报错
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
 
 # MyBatis-Plus配置
 mybatis-plus:
@@ -36,8 +40,3 @@ logging:
   level:
     com.strawberry.irrigation: DEBUG
     com.baomidou.mybatisplus: DEBUG
-
-  # 暂时禁用Redis自动配置，避免启动报错
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration

@@ -22,7 +22,7 @@ public class User {
     /**
      * 用户ID（主键）
      */
-    @TableId(value = "id",type = IdType.AUTO)
+    @TableId(value = "id",type = IdType.AUTO)  //表示使用主键自增策略
     private Long id;
 
     /**
