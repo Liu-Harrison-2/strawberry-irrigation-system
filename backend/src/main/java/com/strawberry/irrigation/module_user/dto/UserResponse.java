@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 /**
  * 用户响应DTO
@@ -21,8 +22,8 @@ public class UserResponse {
     private String email;
     private String userType;
     private String status;
-    private LocalDateTime createTime;
-    private LocalDateTime updateTime;
+    private OffsetDateTime createdAt;
+    private OffsetDateTime updatedAt;
     private String remark;
 
     // 从User实体转换为Response DTO的构造方法
@@ -34,8 +35,8 @@ public class UserResponse {
         this.email = user.getEmail();
         this.userType = user.getUserType();
         this.status = user.getStatus();
-        this.createTime = user.getCreateTime();
-        this.updateTime = user.getUpdateTime();
+        this.createdAt = user.getCreatedAt();
+        this.updatedAt = user.getUpdatedAt();
         this.remark = user.getRemark();
     }
 }

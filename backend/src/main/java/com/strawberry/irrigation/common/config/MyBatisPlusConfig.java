@@ -6,11 +6,13 @@ import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.OptimisticLockerInnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import org.apache.ibatis.reflection.MetaObject;
+import org.apache.ibatis.type.TypeHandlerRegistry;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 /**
  * MyBatis-Plus配置类
@@ -20,7 +22,7 @@ import java.time.LocalDateTime;
 public class MyBatisPlusConfig {
 
     /**
-     * MyBatis-Plus插件配置
+     * 注册自定义类型处理器
      */
     @Bean
     public MybatisPlusInterceptor mybatisPlusInterceptor() {
@@ -38,23 +40,21 @@ public class MyBatisPlusConfig {
     /**
      * 自动填充配置
      */
-    /*
     @Bean
     public MetaObjectHandler metaObjectHandler() {
         return new MetaObjectHandler() {
             @Override
             public void insertFill(MetaObject metaObject) {
                 // 插入时自动填充创建时间和更新时间
-                this.setFieldValByName("createTime", LocalDateTime.now(), metaObject);
-                this.setFieldValByName("updateTime", LocalDateTime.now(), metaObject);
+                this.setFieldValByName("createdAt", OffsetDateTime.now(), metaObject);
+                this.setFieldValByName("updatedAt", OffsetDateTime.now(), metaObject);
             }
 
             @Override
             public void updateFill(MetaObject metaObject) {
                 // 更新时自动填充更新时间
-                this.setFieldValByName("updateTime", LocalDateTime.now(), metaObject);
+                this.setFieldValByName("updatedAt", OffsetDateTime.now(), metaObject);
             }
         };
     }
-    */
 }

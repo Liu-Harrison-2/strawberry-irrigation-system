@@ -9,13 +9,22 @@ spring:
     driver-class-name: org.postgresql.Driver
     username: liuhy
     password: 123456
+    hikari:
+      connection-test-query: SELECT 1
+      connection-timeout: 20000
+      minimum-idle: 5
+      maximum-pool-size: 20
+  # PostgreSQL特定配置
+  postgresql:
+    jdbc:
+      time-zone: UTC
   # 暂时禁用Redis自动配置，避免启动报错
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
   sql:
     init:
-      mode: never
+      mode: never # 禁用数据库初始化，因为表已存在
 
 # MyBatis-Plus配置
 mybatis-plus:
@@ -24,6 +33,10 @@ mybatis-plus:
     map-underscore-to-camel-case: true
     # 打印SQL日志
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    # 配置JDBC类型处理
+    jdbc-type-for-null: NULL
+    # PostgreSQL时间类型处理
+    default-enum-type-handler: org.apache.ibatis.type.EnumOrdinalTypeHandler
   global-config:
     db-config:
       # 主键生成策略：自增

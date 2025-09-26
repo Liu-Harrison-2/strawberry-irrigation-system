@@ -16,7 +16,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -87,8 +87,8 @@ class UserServiceImplTest {
         mockUser.setUserType("FARMER");
         mockUser.setEmail("test@example.com");
         mockUser.setStatus("INACTIVE");
-        mockUser.setCreateTime(LocalDateTime.now());
-        mockUser.setUpdateTime(LocalDateTime.now());
+        mockUser.setCreatedAt(OffsetDateTime.now());
+        mockUser.setUpdatedAt(OffsetDateTime.now());
         mockUser.setRemark("测试用户备注");
     }
 
@@ -423,8 +423,8 @@ class UserServiceImplTest {
             updatedUser.setUserType(mockUser.getUserType());
             updatedUser.setEmail(mockUser.getEmail());
             updatedUser.setStatus(mockUser.getStatus());
-            updatedUser.setCreateTime(mockUser.getCreateTime());
-            updatedUser.setUpdateTime(mockUser.getUpdateTime());
+            updatedUser.setCreatedAt(mockUser.getCreatedAt());
+            updatedUser.setUpdatedAt(mockUser.getUpdatedAt());
             when(userMapper.selectById(1L)).thenReturn(mockUser, updatedUser);
 
             UserResponse response = userService.updateUser(1L, validUpdateRequest);

@@ -17,7 +17,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -86,8 +86,8 @@ class UserControllerTest {
         mockUserResponse.setPhone("13812345678");
         mockUserResponse.setUserType("FARMER");
         mockUserResponse.setStatus("INACTIVE");
-        mockUserResponse.setCreateTime(LocalDateTime.now());
-        mockUserResponse.setUpdateTime(LocalDateTime.now());
+        mockUserResponse.setCreatedAt(OffsetDateTime.now());
+        mockUserResponse.setUpdatedAt(OffsetDateTime.now());
     }
 
     @Nested

@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import jakarta.validation.constraints.*;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 /**
  * 用户实体类
@@ -84,14 +84,14 @@ public class User {
     /**
      * 创建时间
      */
-    @TableField("created_at")
-    private LocalDateTime createTime;
+    @TableField(value = "created_at", fill = FieldFill.INSERT)
+    private OffsetDateTime createdAt;
 
     /**
      * 更新时间
      */
-    @TableField("updated_at")
-    private LocalDateTime updateTime;
+    @TableField(value = "updated_at", fill = FieldFill.INSERT_UPDATE)
+    private OffsetDateTime updatedAt;
 
     /**
      * 备注信息
