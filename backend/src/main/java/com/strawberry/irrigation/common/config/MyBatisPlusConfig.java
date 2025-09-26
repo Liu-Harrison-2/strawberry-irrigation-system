@@ -38,6 +38,7 @@ public class MyBatisPlusConfig {
     /**
      * 自动填充配置
      */
+    /*
     @Bean
     public MetaObjectHandler metaObjectHandler() {
         return new MetaObjectHandler() {
@@ -55,4 +56,5 @@ public class MyBatisPlusConfig {
             }
         };
     }
+    */
 }

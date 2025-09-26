@@ -13,6 +13,9 @@ spring:
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+  sql:
+    init:
+      mode: never
 
 # MyBatis-Plus配置
 mybatis-plus:
