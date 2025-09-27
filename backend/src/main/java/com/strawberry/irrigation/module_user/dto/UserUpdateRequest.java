@@ -19,5 +19,8 @@ public class UserUpdateRequest {
     @Email(message = "邮箱格式不正确")
     private String email; // 可选字段
 
+    @Pattern(regexp = "^(ACTIVE|INACTIVE|BANNED)$|^$", message = "用户状态只能是ACTIVE、INACTIVE或BANNED")
+    private String status; // 用户状态
+
     private String remark;
 }

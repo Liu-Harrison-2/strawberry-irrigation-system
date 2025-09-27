@@ -13,6 +13,7 @@ import com.strawberry.irrigation.module_user.entity.User;
 import com.strawberry.irrigation.module_user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -31,6 +32,7 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Override
     @Transactional //覆盖默认只读事务，使用读写事务
@@ -58,20 +60,19 @@ public class UserServiceImpl implements UserService {
             }
         }
 
-        // 4. 检查手机号是否已存在（如果提供了手机号）- 使用MP的QueryWrapper
-        if (StringUtils.hasText(request.getPhoneNumber())) {
-            QueryWrapper<User> phoneQuery = new QueryWrapper<>();
-            phoneQuery.eq("phone_number", request.getPhoneNumber());
-            if (userMapper.selectCount(phoneQuery) > 0) {
-                throw new BusinessException(SystemConstants.BUSINESS_ERROR_CODE,
-                        "手机号 '" + request.getPhoneNumber() + "' 已存在");
-            }
+        // 4. 检查手机号是否已存在 - 使用MP的QueryWrapper
+        // 由于手机号现在是必填字段，不需要检查是否为空
+        QueryWrapper<User> phoneQuery = new QueryWrapper<>();
+        phoneQuery.eq("phone_number", request.getPhoneNumber());
+        if (userMapper.selectCount(phoneQuery) > 0) {
+            throw new BusinessException(SystemConstants.BUSINESS_ERROR_CODE,
+                    "手机号 '" + request.getPhoneNumber() + "' 已存在");
         }
 
         // 5. 创建用户实体
         User user = new User(
                 request.getUsername(),
-                request.getPassword(), // 后续需要加密
+                passwordEncoder.encode(request.getPassword()), // 加密密码
                 request.getEmail(),
                 request.getRealName(),
                 request.getPhoneNumber(),
@@ -144,6 +145,9 @@ public class UserServiceImpl implements UserService {
         }
         if (StringUtils.hasText(request.getEmail())) {
             updateWrapper.set("email", request.getEmail());
+        }
+        if (StringUtils.hasText(request.getStatus())) {
+            updateWrapper.set("status", request.getStatus());
         }
         if (request.getRemark() != null) {
             updateWrapper.set("remark", request.getRemark());
@@ -250,12 +254,27 @@ public class UserServiceImpl implements UserService {
         return userMapper.selectCount(queryWrapper) > 0;
     }
 
+    // ========== 认证服务专用方法实现 ==========
+    
+    @Override
+    public User getUserEntityByUsername(String username) {
+        log.info("根据用户名获取用户实体: {}", username);
 
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("username", username);
+        return userMapper.selectOne(queryWrapper);
+    }
+    
+    @Override
+    public User getUserEntityById(Long id) {
+        log.info("根据用户ID获取用户实体: {}", id);
+        return userMapper.selectById(id);
+    }
 
     // ========== 私有辅助方法 ==========
 
     /**
-     * 校验用户创建请求
+     * 验证创建用户请求的合法性
      */
     private void validateCreateRequest(UserCreateRequest request) {
         // 校验用户类型
@@ -265,9 +284,17 @@ public class UserServiceImpl implements UserService {
                     "用户类型只能是 ADMIN 或 FARMER");
         }
 
-        // 校验手机号格式（如果提供了手机号）
-        if (StringUtils.hasText(request.getPhoneNumber()) &&
-                !request.getPhoneNumber().matches("^1[3-9]\\d{9}$")) {
+        // 校验真实姓名不能为空
+        if (!StringUtils.hasText(request.getRealName())) {
+            throw new BusinessException(SystemConstants.BUSINESS_ERROR_CODE, "真实姓名不能为空");
+        }
+
+        // 校验手机号不能为空且格式正确
+        if (!StringUtils.hasText(request.getPhoneNumber())) {
+            throw new BusinessException(SystemConstants.BUSINESS_ERROR_CODE, "手机号不能为空");
+        }
+        
+        if (!request.getPhoneNumber().matches("^1[3-9]\\d{9}$")) {
             throw new BusinessException(SystemConstants.BUSINESS_ERROR_CODE, "手机号格式不正确");
         }
     }
@@ -302,6 +329,14 @@ public class UserServiceImpl implements UserService {
     /**
      * 根据用户名或邮箱查找用户（用于登录）
      */
+    /**
+     * 根据用户名或邮箱查询用户实体（供认证服务使用）
+     * 
+     * 为什么这么做：认证时用户可能使用用户名或邮箱登录，需要支持两种方式查询
+     * 怎么做：使用MyBatis-Plus的QueryWrapper构建OR查询条件
+     * 注意点：这个方法返回User实体而不是UserResponse，专门供认证服务使用
+     */
+    @Override
     public User findByUsernameOrEmail(String usernameOrEmail) {
         log.info("根据用户名或邮箱查询用户: {}", usernameOrEmail);
 

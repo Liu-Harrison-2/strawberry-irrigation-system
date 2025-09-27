@@ -52,3 +52,13 @@ logging:
   level:
     com.strawberry.irrigation: DEBUG
     com.baomidou.mybatisplus: DEBUG
+
+# 认证与令牌配置（请在本地开发环境中设置更安全的值，生产环境从环境变量注入）
+jwt:
+  issuer: smart-irrigation-backend
+  # 强烈建议通过环境变量覆盖该密钥，例如：SPRING_APPLICATION_JSON 或命令行 --jwt.secret
+  secret: "this-is-a-very-strong-secret-key-for-jwt-hs512-algorithm-that-must-be-at-least-512-bits-long"
+  access-token:
+    expires-in-minutes: 60   # 访问令牌有效期
+  refresh-token:
+    expires-in-days: 7       # 刷新令牌有效期

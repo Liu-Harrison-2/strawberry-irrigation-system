@@ -46,7 +46,7 @@ public class User {
     private String email;
 
     /**
-     * 真实姓名
+     * 真实姓名（必填字段）
      */
     @TableField("real_name")
     @NotBlank(message = "真实姓名不能为空")
@@ -108,7 +108,8 @@ public class User {
         this.realName = realName;
         this.phoneNumber = phoneNumber;
         this.userType = userType;
-        this.status = SystemConstants.USER_STATUS_INACTIVE;
+        // 临时修改：如果是ADMIN用户，直接设置为ACTIVE状态
+        this.status = "ADMIN".equals(userType) ? SystemConstants.USER_STATUS_ACTIVE : SystemConstants.USER_STATUS_INACTIVE;
         this.isVerified = false;
     }
 }

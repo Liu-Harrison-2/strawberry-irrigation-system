@@ -1,0 +1,1079 @@
+{
+	"info": {
+		"_postman_id": "user-management-api-test",
+		"name": "智能灌溉系统 - 用户管理API测试集合",
+		"description": "完整的用户管理模块API测试用例集合，包含创建、查询、更新、删除等所有功能测试。\n\n最新更新：适配手机号和真实姓名必填、邮箱可选的字段约束变更。",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. 用户创建API测试",
+			"item": [
+				{
+					"name": "1.1 正常创建农户用户（包含所有字段）",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"farmer001\",\n    \"password\": \"123456\",\n    \"realName\": \"张三\",\n    \"phoneNumber\": \"13812345678\",\n    \"userType\": \"FARMER\",\n    \"email\": \"farmer001@example.com\",\n    \"remark\": \"测试农户用户\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1.2 正常创建用户（不包含邮箱）**[新增测试]**",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"farmer002\",\n    \"password\": \"123456\",\n    \"realName\": \"李四\",\n    \"phoneNumber\": \"13987654321\",\n    \"userType\": \"FARMER\",\n    \"remark\": \"不提供邮箱的用户\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1.3 正常创建管理员用户",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"admin001\",\n    \"password\": \"admin123\",\n    \"realName\": \"管理员\",\n    \"phoneNumber\": \"13999999999\",\n    \"userType\": \"ADMIN\",\n    \"email\": \"admin@example.com\",\n    \"remark\": \"系统管理员\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1.4 正常创建技术员用户",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"tech001\",\n    \"password\": \"tech123\",\n    \"realName\": \"技术员王五\",\n    \"phoneNumber\": \"13888888888\",\n    \"userType\": \"TECHNICIAN\",\n    \"email\": \"tech@example.com\",\n    \"remark\": \"系统技术员\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. 字段验证错误测试 **[新增/更新]**",
+			"item": [
+				{
+					"name": "2.1 测试真实姓名为空错误 **[新增测试]**",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"farmer003\",\n    \"password\": \"123456\",\n    \"realName\": null,\n    \"phoneNumber\": \"13800000001\",\n    \"userType\": \"FARMER\",\n    \"email\": \"test@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.2 测试手机号为空错误 **[新增测试]**",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"farmer004\",\n    \"password\": \"123456\",\n    \"realName\": \"王五\",\n    \"phoneNumber\": null,\n    \"userType\": \"FARMER\",\n    \"email\": \"wangwu@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.3 测试用户名已存在错误",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"farmer001\",\n    \"password\": \"123456\",\n    \"realName\": \"赵六\",\n    \"phoneNumber\": \"13800000002\",\n    \"userType\": \"FARMER\",\n    \"email\": \"zhaoliu@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.4 测试手机号已存在错误",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"farmer005\",\n    \"password\": \"123456\",\n    \"realName\": \"孙七\",\n    \"phoneNumber\": \"13812345678\",\n    \"userType\": \"FARMER\",\n    \"email\": \"sunqi@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.5 测试用户名太短错误",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"ab\",\n    \"password\": \"123456\",\n    \"realName\": \"测试用户\",\n    \"phoneNumber\": \"13800000003\",\n    \"userType\": \"FARMER\",\n    \"email\": \"test@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.6 测试密码太短错误",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"123\",\n    \"realName\": \"测试用户\",\n    \"phoneNumber\": \"13800000004\",\n    \"userType\": \"FARMER\",\n    \"email\": \"test@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.7 测试手机号格式错误",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"testuser2\",\n    \"password\": \"123456\",\n    \"realName\": \"测试用户\",\n    \"phoneNumber\": \"123456789\",\n    \"userType\": \"FARMER\",\n    \"email\": \"test@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.8 测试邮箱格式错误",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"testuser3\",\n    \"password\": \"123456\",\n    \"realName\": \"测试用户\",\n    \"phoneNumber\": \"13800000005\",\n    \"userType\": \"FARMER\",\n    \"email\": \"invalid-email\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.9 测试用户类型无效错误",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"testuser4\",\n    \"password\": \"123456\",\n    \"realName\": \"测试用户\",\n    \"phoneNumber\": \"13800000006\",\n    \"userType\": \"INVALID_TYPE\",\n    \"email\": \"test@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.10 测试多个字段验证错误",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"ab\",\n    \"password\": \"123\",\n    \"realName\": \"\",\n    \"phoneNumber\": \"123456789\",\n    \"userType\": \"INVALID\",\n    \"email\": \"invalid-email\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3. 用户查询API测试",
+			"item": [
+				{
+					"name": "3.1 根据ID查询用户",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/users/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "1"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.2 查询不存在的用户",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/users/999",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "999"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.3 根据用户名查询用户",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/users/username/farmer001",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "username", "farmer001"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.4 查询不存在的用户名",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/users/username/nonexistent",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "username", "nonexistent"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.5 获取所有用户列表",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.6 分页查询用户（第1页，每页10条）",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/users/page?page=0&size=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "page"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.7 分页查询用户（第2页，每页5条）",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/users/page?page=1&size=5",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "page"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "size",
+									"value": "5"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.8 分页查询参数错误（页码为负数）",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/users/page?page=-1&size=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "page"],
+							"query": [
+								{
+									"key": "page",
+									"value": "-1"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.9 根据用户类型查询（农户）",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/users/type/FARMER",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "type", "FARMER"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.10 根据用户类型查询（管理员）",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/users/type/ADMIN",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "type", "ADMIN"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.11 根据用户类型查询（技术员）",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/users/type/TECHNICIAN",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "type", "TECHNICIAN"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.12 查询无效用户类型",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/users/type/INVALID_TYPE",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "type", "INVALID_TYPE"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.13 获取用户总数",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/users/count",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "count"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.14 检查用户名是否存在（存在的用户名）",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/users/check/username/farmer001",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "check", "username", "farmer001"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.15 检查用户名是否存在（不存在的用户名）",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/users/check/username/nonexistent",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "check", "username", "nonexistent"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.16 检查手机号是否存在（存在的手机号）",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/users/check/phone/13812345678",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "check", "phone", "13812345678"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.17 检查手机号是否存在（不存在的手机号）",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/users/check/phone/19999999999",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "check", "phone", "19999999999"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "4. 用户更新API测试",
+			"item": [
+				{
+					"name": "4.1 正常更新用户信息",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"realName\": \"张三丰\",\n    \"phoneNumber\": \"13812345679\",\n    \"email\": \"zhangsan_new@example.com\",\n    \"remark\": \"更新后的备注\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "1"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4.2 更新用户信息（移除邮箱）**[新增测试]**",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"realName\": \"张三丰\",\n    \"phoneNumber\": \"13812345679\",\n    \"email\": null,\n    \"remark\": \"移除邮箱的用户\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "1"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4.3 更新不存在的用户",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"realName\": \"不存在的用户\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/999",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "999"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4.4 更新时手机号冲突（使用其他用户的手机号）",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"phoneNumber\": \"13999999999\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "1"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4.5 更新时邮箱冲突（使用其他用户的邮箱）",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "1"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4.6 更新时字段验证错误",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"realName\": \"这是一个非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常长的姓名\",\n    \"phoneNumber\": \"123456789\",\n    \"email\": \"invalid-email\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "1"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "5. 用户删除API测试",
+			"item": [
+				{
+					"name": "5.1 正常删除用户",
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "{{baseUrl}}/api/users/2",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "2"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5.2 删除不存在的用户",
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "{{baseUrl}}/api/users/999",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "999"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5.3 验证用户已被删除（查询已删除的用户）",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/users/2",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "2"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "6. 健康检查API测试",
+			"item": [
+				{
+					"name": "6.1 系统健康检查",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/users/health",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "health"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "7. 完整业务流程测试",
+			"item": [
+				{
+					"name": "7.1 创建测试用户",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"lifecycle_test\",\n    \"password\": \"123456\",\n    \"realName\": \"生命周期测试\",\n    \"phoneNumber\": \"13700000000\",\n    \"userType\": \"FARMER\",\n    \"email\": \"lifecycle@test.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "7.2 查询刚创建的用户（使用返回的ID）",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/users/{{userId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "{{userId}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "7.3 更新用户信息",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"realName\": \"更新后的生命周期测试\",\n    \"phoneNumber\": \"13800000000\",\n    \"remark\": \"已更新\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/{{userId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "{{userId}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "7.4 再次查询验证更新",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/users/{{userId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "{{userId}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "7.5 删除用户",
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "{{baseUrl}}/api/users/{{userId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "{{userId}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "7.6 验证用户已删除",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/users/{{userId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "{{userId}}"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "8. 边界条件和特殊场景测试",
+			"item": [
+				{
+					"name": "8.1 测试特殊字符用户名",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"test_special_123\",\n    \"password\": \"123456\",\n    \"realName\": \"测试用户@#$%\",\n    \"phoneNumber\": \"13612345678\",\n    \"userType\": \"FARMER\",\n    \"email\": \"special+test@example.com\",\n    \"remark\": \"包含特殊字符的备注：!@#$%^&*()\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "8.2 测试Unicode字符",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"unicode_test\",\n    \"password\": \"123456\",\n    \"realName\": \"🌾农夫小王\",\n    \"phoneNumber\": \"13712345678\",\n    \"userType\": \"FARMER\",\n    \"email\": \"unicode@测试.com\",\n    \"remark\": \"支持Unicode字符：😊🌱🚜\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "8.3 测试最大长度字段",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"maxlength_test_user_name_with_50_characters_max\",\n    \"password\": \"123456\",\n    \"realName\": \"这是一个测试最大长度的真实姓名字段内容这是一个测试最大长度的真实姓名字段内容这是一个测试最大长度的真实姓名字段内容这是一个测试最大长度的真实姓名字段内容\",\n    \"phoneNumber\": \"13812345679\",\n    \"userType\": \"FARMER\",\n    \"email\": \"maxlength@example.com\",\n    \"remark\": \"这是一个测试最大长度的备注字段内容，用于验证系统对于长文本的处理能力。这个备注包含了大量的文字内容，目的是测试系统是否能够正确处理和存储较长的备注信息。在实际使用中，用户可能会输入各种长度的备注内容，因此我们需要确保系统能够稳定地处理这些情况。这个测试用例特别关注字段长度限制和数据库存储的正确性，以及前端显示的兼容性。通过这样的测试，我们可以确保用户管理系统在各种输入条件下都能正常工作，为用户提供稳定可靠的服务体验。\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "8.4 测试大页码分页查询",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/users/page?page=100&size=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "page"],
+							"query": [
+								{
+									"key": "page",
+									"value": "100"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "8.5 测试最大页面大小",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/users/page?page=0&size=100",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "page"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "100"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "8.6 测试超出限制的页面大小",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/users/page?page=0&size=101",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "page"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "101"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "9. 并发测试准备",
+			"item": [
+				{
+					"name": "9.1 并发创建用户测试1",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"concurrent_user_1\",\n    \"password\": \"123456\",\n    \"realName\": \"并发测试用户1\",\n    \"phoneNumber\": \"13600000001\",\n    \"userType\": \"FARMER\",\n    \"email\": \"concurrent1@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "9.2 并发创建用户测试2",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"concurrent_user_2\",\n    \"password\": \"123456\",\n    \"realName\": \"并发测试用户2\",\n    \"phoneNumber\": \"13600000002\",\n    \"userType\": \"FARMER\",\n    \"email\": \"concurrent2@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "9.3 并发创建用户测试3",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"concurrent_user_3\",\n    \"password\": \"123456\",\n    \"realName\": \"并发测试用户3\",\n    \"phoneNumber\": \"13600000003\",\n    \"userType\": \"FARMER\",\n    \"email\": \"concurrent3@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users"]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "1",
+			"type": "string"
+		}
+	]
+}

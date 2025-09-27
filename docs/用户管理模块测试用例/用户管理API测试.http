@@ -1,0 +1,500 @@
+### 用户管理API测试 - VS Code REST Client
+### 
+### 使用说明：
+### 1. 安装 VS Code REST Client 插件
+### 2. 启动后端应用：mvn spring-boot:run
+### 3. 点击每个请求上方的 "Send Request" 链接执行测试
+### 4. 根据返回的用户ID更新后续请求中的 {userId} 占位符
+### 
+### 最新更新：适配手机号和真实姓名必填、邮箱可选的字段约束变更
+
+@baseUrl = http://localhost:8080
+@contentType = application/json
+
+### ============================================
+### 1. 用户创建API测试
+### ============================================
+
+### 1.1 正常创建农户用户（包含所有字段）
+POST {{baseUrl}}/api/users
+Content-Type: {{contentType}}
+
+{
+    "username": "farmer001",
+    "password": "123456",
+    "realName": "张三",
+    "phoneNumber": "13812345678",
+    "userType": "FARMER",
+    "email": "farmer001@example.com",
+    "remark": "测试农户用户"
+}
+
+### 1.2 正常创建用户（不包含邮箱）**[新增测试]**
+POST {{baseUrl}}/api/users
+Content-Type: {{contentType}}
+
+{
+    "username": "farmer002",
+    "password": "123456",
+    "realName": "李四",
+    "phoneNumber": "13987654321",
+    "userType": "FARMER",
+    "remark": "不提供邮箱的用户"
+}
+
+### 1.3 正常创建管理员用户
+POST {{baseUrl}}/api/users
+Content-Type: {{contentType}}
+
+{
+    "username": "admin001",
+    "password": "admin123",
+    "realName": "管理员",
+    "phoneNumber": "13999999999",
+    "userType": "ADMIN",
+    "email": "admin@example.com",
+    "remark": "系统管理员"
+}
+
+### 1.4 正常创建技术员用户
+POST {{baseUrl}}/api/users
+Content-Type: {{contentType}}
+
+{
+    "username": "tech001",
+    "password": "tech123",
+    "realName": "技术员王五",
+    "phoneNumber": "13888888888",
+    "userType": "TECHNICIAN",
+    "email": "tech@example.com",
+    "remark": "系统技术员"
+}
+
+### ============================================
+### 2. 字段验证错误测试 **[新增/更新]**
+### ============================================
+
+### 2.1 测试真实姓名为空错误 **[新增测试]**
+POST {{baseUrl}}/api/users
+Content-Type: {{contentType}}
+
+{
+    "username": "farmer003",
+    "password": "123456",
+    "realName": null,
+    "phoneNumber": "13800000001",
+    "userType": "FARMER",
+    "email": "test@example.com"
+}
+
+### 2.2 测试手机号为空错误 **[新增测试]**
+POST {{baseUrl}}/api/users
+Content-Type: {{contentType}}
+
+{
+    "username": "farmer004",
+    "password": "123456",
+    "realName": "王五",
+    "phoneNumber": null,
+    "userType": "FARMER",
+    "email": "wangwu@example.com"
+}
+
+### 2.3 测试用户名已存在错误
+POST {{baseUrl}}/api/users
+Content-Type: {{contentType}}
+
+{
+    "username": "farmer001",
+    "password": "123456",
+    "realName": "赵六",
+    "phoneNumber": "13800000002",
+    "userType": "FARMER",
+    "email": "zhaoliu@example.com"
+}
+
+### 2.4 测试手机号已存在错误
+POST {{baseUrl}}/api/users
+Content-Type: {{contentType}}
+
+{
+    "username": "farmer005",
+    "password": "123456",
+    "realName": "孙七",
+    "phoneNumber": "13812345678",
+    "userType": "FARMER",
+    "email": "sunqi@example.com"
+}
+
+### 2.5 测试用户名太短错误
+POST {{baseUrl}}/api/users
+Content-Type: {{contentType}}
+
+{
+    "username": "ab",
+    "password": "123456",
+    "realName": "测试用户",
+    "phoneNumber": "13800000003",
+    "userType": "FARMER",
+    "email": "test@example.com"
+}
+
+### 2.6 测试密码太短错误
+POST {{baseUrl}}/api/users
+Content-Type: {{contentType}}
+
+{
+    "username": "testuser",
+    "password": "123",
+    "realName": "测试用户",
+    "phoneNumber": "13800000004",
+    "userType": "FARMER",
+    "email": "test@example.com"
+}
+
+### 2.7 测试手机号格式错误
+POST {{baseUrl}}/api/users
+Content-Type: {{contentType}}
+
+{
+    "username": "testuser2",
+    "password": "123456",
+    "realName": "测试用户",
+    "phoneNumber": "123456789",
+    "userType": "FARMER",
+    "email": "test@example.com"
+}
+
+### 2.8 测试邮箱格式错误
+POST {{baseUrl}}/api/users
+Content-Type: {{contentType}}
+
+{
+    "username": "testuser3",
+    "password": "123456",
+    "realName": "测试用户",
+    "phoneNumber": "13800000005",
+    "userType": "FARMER",
+    "email": "invalid-email"
+}
+
+### 2.9 测试用户类型无效错误
+POST {{baseUrl}}/api/users
+Content-Type: {{contentType}}
+
+{
+    "username": "testuser4",
+    "password": "123456",
+    "realName": "测试用户",
+    "phoneNumber": "13800000006",
+    "userType": "INVALID_TYPE",
+    "email": "test@example.com"
+}
+
+### 2.10 测试多个字段验证错误
+POST {{baseUrl}}/api/users
+Content-Type: {{contentType}}
+
+{
+    "username": "ab",
+    "password": "123",
+    "realName": "",
+    "phoneNumber": "123456789",
+    "userType": "INVALID",
+    "email": "invalid-email"
+}
+
+### ============================================
+### 3. 用户查询API测试
+### ============================================
+
+### 3.1 根据ID查询用户（请替换为实际的用户ID）
+GET {{baseUrl}}/api/users/1
+
+### 3.2 查询不存在的用户
+GET {{baseUrl}}/api/users/999
+
+### 3.3 根据用户名查询用户
+GET {{baseUrl}}/api/users/username/farmer001
+
+### 3.4 查询不存在的用户名
+GET {{baseUrl}}/api/users/username/nonexistent
+
+### 3.5 获取所有用户列表
+GET {{baseUrl}}/api/users
+
+### 3.6 分页查询用户（第1页，每页10条）
+GET {{baseUrl}}/api/users/page?page=0&size=10
+
+### 3.7 分页查询用户（第2页，每页5条）
+GET {{baseUrl}}/api/users/page?page=1&size=5
+
+### 3.8 分页查询参数错误（页码为负数）
+GET {{baseUrl}}/api/users/page?page=-1&size=10
+
+### 3.9 分页查询参数错误（页面大小为0）
+GET {{baseUrl}}/api/users/page?page=0&size=0
+
+### 3.10 根据用户类型查询（农户）
+GET {{baseUrl}}/api/users/type/FARMER
+
+### 3.11 根据用户类型查询（管理员）
+GET {{baseUrl}}/api/users/type/ADMIN
+
+### 3.12 根据用户类型查询（技术员）
+GET {{baseUrl}}/api/users/type/TECHNICIAN
+
+### 3.13 查询无效用户类型
+GET {{baseUrl}}/api/users/type/INVALID_TYPE
+
+### 3.14 获取用户总数
+GET {{baseUrl}}/api/users/count
+
+### 3.15 检查用户名是否存在（存在的用户名）
+GET {{baseUrl}}/api/users/check/username/farmer001
+
+### 3.16 检查用户名是否存在（不存在的用户名）
+GET {{baseUrl}}/api/users/check/username/nonexistent
+
+### 3.17 检查手机号是否存在（存在的手机号）
+GET {{baseUrl}}/api/users/check/phone/13812345678
+
+### 3.18 检查手机号是否存在（不存在的手机号）
+GET {{baseUrl}}/api/users/check/phone/19999999999
+
+### ============================================
+### 4. 用户更新API测试
+### ============================================
+
+### 4.1 正常更新用户信息（请替换为实际的用户ID）
+PUT {{baseUrl}}/api/users/1
+Content-Type: {{contentType}}
+
+{
+    "realName": "张三丰",
+    "phoneNumber": "13812345679",
+    "email": "zhangsan_new@example.com",
+    "remark": "更新后的备注"
+}
+
+### 4.2 更新用户信息（移除邮箱）**[新增测试]**
+PUT {{baseUrl}}/api/users/1
+Content-Type: {{contentType}}
+
+{
+    "realName": "张三丰",
+    "phoneNumber": "13812345679",
+    "email": null,
+    "remark": "移除邮箱的用户"
+}
+
+### 4.3 更新不存在的用户
+PUT {{baseUrl}}/api/users/999
+Content-Type: {{contentType}}
+
+{
+    "realName": "不存在的用户"
+}
+
+### 4.4 更新时手机号冲突（使用其他用户的手机号）
+PUT {{baseUrl}}/api/users/1
+Content-Type: {{contentType}}
+
+{
+    "phoneNumber": "13999999999"
+}
+
+### 4.5 更新时邮箱冲突（使用其他用户的邮箱）
+PUT {{baseUrl}}/api/users/1
+Content-Type: {{contentType}}
+
+{
+    "email": "admin@example.com"
+}
+
+### 4.6 更新时字段验证错误
+PUT {{baseUrl}}/api/users/1
+Content-Type: {{contentType}}
+
+{
+    "realName": "这是一个非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常长的姓名",
+    "phoneNumber": "123456789",
+    "email": "invalid-email"
+}
+
+### ============================================
+### 5. 用户删除API测试
+### ============================================
+
+### 5.1 正常删除用户（请替换为实际的用户ID）
+DELETE {{baseUrl}}/api/users/2
+
+### 5.2 删除不存在的用户
+DELETE {{baseUrl}}/api/users/999
+
+### 5.3 验证用户已被删除（查询已删除的用户）
+GET {{baseUrl}}/api/users/2
+
+### ============================================
+### 6. 健康检查API测试
+### ============================================
+
+### 6.1 系统健康检查
+GET {{baseUrl}}/api/users/health
+
+### ============================================
+### 7. 完整业务流程测试
+### ============================================
+
+### 7.1 创建测试用户
+POST {{baseUrl}}/api/users
+Content-Type: {{contentType}}
+
+{
+    "username": "lifecycle_test",
+    "password": "123456",
+    "realName": "生命周期测试",
+    "phoneNumber": "13700000000",
+    "userType": "FARMER",
+    "email": "lifecycle@test.com"
+}
+
+### 7.2 查询刚创建的用户（使用返回的ID）
+GET {{baseUrl}}/api/users/{{userId}}
+
+### 7.3 更新用户信息
+PUT {{baseUrl}}/api/users/{{userId}}
+Content-Type: {{contentType}}
+
+{
+    "realName": "更新后的生命周期测试",
+    "phoneNumber": "13800000000",
+    "remark": "已更新"
+}
+
+### 7.4 再次查询验证更新
+GET {{baseUrl}}/api/users/{{userId}}
+
+### 7.5 删除用户
+DELETE {{baseUrl}}/api/users/{{userId}}
+
+### 7.6 验证用户已删除
+GET {{baseUrl}}/api/users/{{userId}}
+
+### ============================================
+### 8. 边界条件和特殊场景测试
+### ============================================
+
+### 8.1 测试特殊字符用户名
+POST {{baseUrl}}/api/users
+Content-Type: {{contentType}}
+
+{
+    "username": "test_special_123",
+    "password": "123456",
+    "realName": "测试用户@#$%",
+    "phoneNumber": "13612345678",
+    "userType": "FARMER",
+    "email": "special+test@example.com",
+    "remark": "包含特殊字符的备注：!@#$%^&*()"
+}
+
+### 8.2 测试Unicode字符
+POST {{baseUrl}}/api/users
+Content-Type: {{contentType}}
+
+{
+    "username": "unicode_test",
+    "password": "123456",
+    "realName": "🌾农夫小王",
+    "phoneNumber": "13712345678",
+    "userType": "FARMER",
+    "email": "unicode@测试.com",
+    "remark": "支持Unicode字符：😊🌱🚜"
+}
+
+### 8.3 测试最大长度字段
+POST {{baseUrl}}/api/users
+Content-Type: {{contentType}}
+
+{
+    "username": "maxlength_test_user_name_with_50_characters_max",
+    "password": "123456",
+    "realName": "这是一个测试最大长度的真实姓名字段内容这是一个测试最大长度的真实姓名字段内容这是一个测试最大长度的真实姓名字段内容这是一个测试最大长度的真实姓名字段内容",
+    "phoneNumber": "13812345679",
+    "userType": "FARMER",
+    "email": "maxlength@example.com",
+    "remark": "这是一个测试最大长度的备注字段内容，用于验证系统对于长文本的处理能力。这个备注包含了大量的文字内容，目的是测试系统是否能够正确处理和存储较长的备注信息。在实际使用中，用户可能会输入各种长度的备注内容，因此我们需要确保系统能够稳定地处理这些情况。这个测试用例特别关注字段长度限制和数据库存储的正确性，以及前端显示的兼容性。通过这样的测试，我们可以确保用户管理系统在各种输入条件下都能正常工作，为用户提供稳定可靠的服务体验。"
+}
+
+### 8.4 测试大页码分页查询
+GET {{baseUrl}}/api/users/page?page=100&size=10
+
+### 8.5 测试最大页面大小
+GET {{baseUrl}}/api/users/page?page=0&size=100
+
+### 8.6 测试超出限制的页面大小
+GET {{baseUrl}}/api/users/page?page=0&size=101
+
+### ============================================
+### 9. 并发测试准备
+### ============================================
+
+### 9.1 并发创建用户测试1
+POST {{baseUrl}}/api/users
+Content-Type: {{contentType}}
+
+{
+    "username": "concurrent_user_1",
+    "password": "123456",
+    "realName": "并发测试用户1",
+    "phoneNumber": "13600000001",
+    "userType": "FARMER",
+    "email": "concurrent1@example.com"
+}
+
+### 9.2 并发创建用户测试2
+POST {{baseUrl}}/api/users
+Content-Type: {{contentType}}
+
+{
+    "username": "concurrent_user_2",
+    "password": "123456",
+    "realName": "并发测试用户2",
+    "phoneNumber": "13600000002",
+    "userType": "FARMER",
+    "email": "concurrent2@example.com"
+}
+
+### 9.3 并发创建用户测试3
+POST {{baseUrl}}/api/users
+Content-Type: {{contentType}}
+
+{
+    "username": "concurrent_user_3",
+    "password": "123456",
+    "realName": "并发测试用户3",
+    "phoneNumber": "13600000003",
+    "userType": "FARMER",
+    "email": "concurrent3@example.com"
+}
+
+### ============================================
+### 测试执行说明
+### ============================================
+### 
+### 1. 按顺序执行测试用例，观察返回结果
+### 2. 记录每个请求的响应时间和状态码
+### 3. 验证错误场景是否返回正确的错误信息
+### 4. 注意更新测试中的用户ID占位符
+### 5. 建议在测试前清理数据库中的测试数据
+### 
+### 字段约束变更说明：
+### - 真实姓名(realName)：现在为必填字段，不能为空
+### - 手机号(phoneNumber)：现在为必填字段，不能为空
+### - 邮箱(email)：现在为可选字段，可以为空或null
+### 
+### 预期测试结果：
+### - 创建用户时不提供真实姓名或手机号应返回400错误
+### - 创建用户时不提供邮箱应该成功（返回201）
+### - 所有其他验证规则保持不变

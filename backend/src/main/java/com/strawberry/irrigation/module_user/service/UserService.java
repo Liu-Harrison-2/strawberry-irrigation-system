@@ -3,6 +3,7 @@ package com.strawberry.irrigation.module_user.service;
 import com.strawberry.irrigation.module_user.dto.UserCreateRequest;
 import com.strawberry.irrigation.module_user.dto.UserResponse;
 import com.strawberry.irrigation.module_user.dto.UserUpdateRequest;
+import com.strawberry.irrigation.module_user.entity.User;
 
 import java.util.List;
 
@@ -82,9 +83,32 @@ public interface UserService {
     boolean isUsernameExists(String username);
 
     /**
-     * 检查手机号是否存在
+     * 检查手机号是否已存在
      * @param phone 手机号
      * @return 是否存在
      */
     boolean isPhoneExists(String phone);
+
+    // ========== 认证服务专用方法 ==========
+    
+    /**
+     * 根据用户名获取用户实体（供认证服务使用）
+     * @param username 用户名
+     * @return 用户实体，如果不存在返回null
+     */
+    User getUserEntityByUsername(String username);
+    
+    /**
+     * 根据用户ID获取用户实体（供认证服务使用）
+     * @param id 用户ID
+     * @return 用户实体，如果不存在返回null
+     */
+    User getUserEntityById(Long id);
+    
+    /**
+     * 根据用户名或邮箱获取用户实体（供认证服务使用）
+     * @param usernameOrEmail 用户名或邮箱
+     * @return 用户实体，如果不存在返回null
+     */
+    User findByUsernameOrEmail(String usernameOrEmail);
 }

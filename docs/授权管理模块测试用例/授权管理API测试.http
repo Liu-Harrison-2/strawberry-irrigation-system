@@ -1,0 +1,557 @@
+### 授权管理API测试 - VS Code REST Client
+### 
+### 使用说明：
+### 1. 安装 VS Code REST Client 插件
+### 2. 启动后端应用：mvn spring-boot:run
+### 3. 点击每个请求上方的 "Send Request" 链接执行测试
+### 4. 根据返回的令牌更新后续请求中的 {accessToken} 和 {refreshToken} 占位符
+### 
+### 测试覆盖：用户注册、登录、令牌刷新、登出、撤销所有令牌
+
+@baseUrl = http://localhost:8080
+@contentType = application/json
+
+### ============================================
+### 1. 用户注册API测试
+### ============================================
+
+### 1.1 正常注册农户用户
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+    "username": "farmer001",
+    "password": "password123",
+    "email": "farmer001@example.com",
+    "realName": "张三",
+    "phoneNumber": "13812345678",
+    "userType": "FARMER"
+}
+
+### 1.2 正常注册管理员用户
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+    "username": "admin001",
+    "password": "admin123456",
+    "email": "admin@example.com",
+    "realName": "管理员",
+    "phoneNumber": "13800138001",
+    "userType": "ADMIN"
+}
+
+### 1.3 正常注册技术员用户
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+    "username": "tech001",
+    "password": "tech123456",
+    "email": "tech@example.com",
+    "realName": "技术员",
+    "phoneNumber": "13800138002",
+    "userType": "TECHNICIAN"
+}
+
+### 1.4 注册用户（默认用户类型）
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+    "username": "defaultuser",
+    "password": "default123",
+    "email": "default@example.com",
+    "realName": "默认用户",
+    "phoneNumber": "13800138003"
+}
+
+### ============================================
+### 2. 注册字段验证错误测试
+### ============================================
+
+### 2.1 用户名太短错误
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+    "username": "ab",
+    "password": "password123",
+    "email": "test@example.com",
+    "realName": "测试用户",
+    "phoneNumber": "13800138000"
+}
+
+### 2.2 用户名太长错误
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+    "username": "verylongusernamethatexceedslimit",
+    "password": "password123",
+    "email": "test@example.com",
+    "realName": "测试用户",
+    "phoneNumber": "13800138000"
+}
+
+### 2.3 密码太短错误
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+    "username": "testuser",
+    "password": "123",
+    "email": "test@example.com",
+    "realName": "测试用户",
+    "phoneNumber": "13800138000"
+}
+
+### 2.4 邮箱格式错误
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+    "username": "testuser2",
+    "password": "password123",
+    "email": "invalid-email-format",
+    "realName": "测试用户",
+    "phoneNumber": "13800138000"
+}
+
+### 2.5 手机号格式错误
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+    "username": "testuser3",
+    "password": "password123",
+    "email": "test@example.com",
+    "realName": "测试用户",
+    "phoneNumber": "123456"
+}
+
+### 2.6 真实姓名为空错误
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+    "username": "testuser4",
+    "password": "password123",
+    "email": "test@example.com",
+    "realName": "",
+    "phoneNumber": "13800138000"
+}
+
+### 2.7 手机号为空错误
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+    "username": "testuser5",
+    "password": "password123",
+    "email": "test@example.com",
+    "realName": "测试用户",
+    "phoneNumber": ""
+}
+
+### ============================================
+### 3. 注册重复数据错误测试
+### ============================================
+
+### 3.1 用户名已存在错误（需要先执行1.1）
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+    "username": "farmer001",
+    "password": "differentpassword",
+    "email": "different@example.com",
+    "realName": "不同用户",
+    "phoneNumber": "13900000000"
+}
+
+### 3.2 邮箱已存在错误（需要先执行1.1）
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+    "username": "differentuser",
+    "password": "password123",
+    "email": "farmer001@example.com",
+    "realName": "不同用户",
+    "phoneNumber": "13900000001"
+}
+
+### 3.3 手机号已存在错误（需要先执行1.1）
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+    "username": "anotheruser",
+    "password": "password123",
+    "email": "another@example.com",
+    "realName": "另一个用户",
+    "phoneNumber": "13812345678"
+}
+
+### ============================================
+### 4. 用户登录API测试
+### ============================================
+
+### 4.1 正常登录（需要先执行1.1注册）
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+    "username": "farmer001",
+    "password": "password123"
+}
+
+### 4.2 管理员登录（需要先执行1.2注册）
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+    "username": "admin001",
+    "password": "admin123456"
+}
+
+### ============================================
+### 5. 登录错误测试
+### ============================================
+
+### 5.1 用户名为空错误
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+    "username": "",
+    "password": "password123"
+}
+
+### 5.2 密码为空错误
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+    "username": "farmer001",
+    "password": ""
+}
+
+### 5.3 用户名不存在错误
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+    "username": "nonexistentuser",
+    "password": "password123"
+}
+
+### 5.4 密码错误
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+    "username": "farmer001",
+    "password": "wrongpassword"
+}
+
+### ============================================
+### 6. 令牌刷新API测试
+### ============================================
+
+### 6.1 正常刷新令牌（需要先登录获取refreshToken）
+### 请将下面的 {refreshToken} 替换为登录返回的实际refreshToken
+POST {{baseUrl}}/api/auth/refresh
+Content-Type: {{contentType}}
+
+{
+    "refreshToken": "your_refresh_token_here"
+}
+
+### ============================================
+### 7. 令牌刷新错误测试
+### ============================================
+
+### 7.1 刷新令牌为空错误
+POST {{baseUrl}}/api/auth/refresh
+Content-Type: {{contentType}}
+
+{
+    "refreshToken": ""
+}
+
+### 7.2 刷新令牌无效错误
+POST {{baseUrl}}/api/auth/refresh
+Content-Type: {{contentType}}
+
+{
+    "refreshToken": "invalid_refresh_token"
+}
+
+### 7.3 刷新令牌格式错误
+POST {{baseUrl}}/api/auth/refresh
+Content-Type: {{contentType}}
+
+{
+    "refreshToken": "malformed.token.format"
+}
+
+### ============================================
+### 8. 用户登出API测试
+### ============================================
+
+### 8.1 正常登出（需要先登录获取refreshToken）
+### 请将下面的 {refreshToken} 替换为登录返回的实际refreshToken
+POST {{baseUrl}}/api/auth/logout
+Content-Type: {{contentType}}
+
+{
+    "refreshToken": "your_refresh_token_here"
+}
+
+### ============================================
+### 9. 登出错误测试
+### ============================================
+
+### 9.1 登出时刷新令牌为空错误
+POST {{baseUrl}}/api/auth/logout
+Content-Type: {{contentType}}
+
+{
+    "refreshToken": ""
+}
+
+### 9.2 登出时刷新令牌无效错误
+POST {{baseUrl}}/api/auth/logout
+Content-Type: {{contentType}}
+
+{
+    "refreshToken": "invalid_refresh_token"
+}
+
+### 9.3 登出已撤销的令牌错误
+POST {{baseUrl}}/api/auth/logout
+Content-Type: {{contentType}}
+
+{
+    "refreshToken": "already_revoked_token"
+}
+
+### ============================================
+### 10. 撤销所有令牌API测试
+### ============================================
+
+### 10.1 正常撤销所有令牌（需要先登录获取accessToken）
+### 请将下面的 {accessToken} 替换为登录返回的实际accessToken
+POST {{baseUrl}}/api/auth/revoke-all
+Authorization: Bearer your_access_token_here
+Content-Type: {{contentType}}
+
+### ============================================
+### 11. 撤销所有令牌错误测试
+### ============================================
+
+### 11.1 未提供认证令牌错误
+POST {{baseUrl}}/api/auth/revoke-all
+Content-Type: {{contentType}}
+
+### 11.2 无效的访问令牌错误
+POST {{baseUrl}}/api/auth/revoke-all
+Authorization: Bearer invalid_access_token
+Content-Type: {{contentType}}
+
+### 11.3 过期的访问令牌错误
+POST {{baseUrl}}/api/auth/revoke-all
+Authorization: Bearer expired_access_token
+Content-Type: {{contentType}}
+
+### ============================================
+### 12. 完整认证流程测试
+### ============================================
+
+### 12.1 步骤1：注册新用户
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+    "username": "flowtest001",
+    "password": "flowtest123",
+    "email": "flowtest@example.com",
+    "realName": "流程测试用户",
+    "phoneNumber": "13800000999",
+    "userType": "FARMER"
+}
+
+### 12.2 步骤2：登录获取令牌
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+    "username": "flowtest001",
+    "password": "flowtest123"
+}
+
+### 12.3 步骤3：使用访问令牌访问受保护资源（需要替换accessToken）
+GET {{baseUrl}}/api/users
+Authorization: Bearer your_access_token_here
+
+### 12.4 步骤4：刷新令牌（需要替换refreshToken）
+POST {{baseUrl}}/api/auth/refresh
+Content-Type: {{contentType}}
+
+{
+    "refreshToken": "your_refresh_token_here"
+}
+
+### 12.5 步骤5：撤销所有令牌（需要替换accessToken）
+POST {{baseUrl}}/api/auth/revoke-all
+Authorization: Bearer your_access_token_here
+Content-Type: {{contentType}}
+
+### 12.6 步骤6：验证令牌撤销后无法刷新
+POST {{baseUrl}}/api/auth/refresh
+Content-Type: {{contentType}}
+
+{
+    "refreshToken": "revoked_refresh_token"
+}
+
+### ============================================
+### 13. 安全性测试
+### ============================================
+
+### 13.1 JWT令牌篡改测试
+GET {{baseUrl}}/api/users
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.tampered_payload.signature
+
+### 13.2 SQL注入测试（用户名）
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+    "username": "admin'; DROP TABLE users; --",
+    "password": "password123"
+}
+
+### 13.3 XSS测试（真实姓名）
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+    "username": "xsstest",
+    "password": "password123",
+    "email": "xss@example.com",
+    "realName": "<script>alert('XSS')</script>",
+    "phoneNumber": "13800000888"
+}
+
+### ============================================
+### 14. 边界值测试
+### ============================================
+
+### 14.1 最短有效用户名（3字符）
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+    "username": "abc",
+    "password": "password123",
+    "email": "abc@example.com",
+    "realName": "最短用户名",
+    "phoneNumber": "13800000777"
+}
+
+### 14.2 最长有效用户名（20字符）
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+    "username": "abcdefghij1234567890",
+    "password": "password123",
+    "email": "longest@example.com",
+    "realName": "最长用户名",
+    "phoneNumber": "13800000666"
+}
+
+### 14.3 最短有效密码（6字符）
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+    "username": "minpass",
+    "password": "123456",
+    "email": "minpass@example.com",
+    "realName": "最短密码",
+    "phoneNumber": "13800000555"
+}
+
+### ============================================
+### 15. 并发测试准备
+### ============================================
+
+### 15.1 并发用户1注册
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+    "username": "concurrent1",
+    "password": "concurrent123",
+    "email": "concurrent1@example.com",
+    "realName": "并发用户1",
+    "phoneNumber": "13800001111"
+}
+
+### 15.2 并发用户2注册
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+    "username": "concurrent2",
+    "password": "concurrent123",
+    "email": "concurrent2@example.com",
+    "realName": "并发用户2",
+    "phoneNumber": "13800002222"
+}
+
+### 15.3 并发用户1登录
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+    "username": "concurrent1",
+    "password": "concurrent123"
+}
+
+### 15.4 并发用户2登录
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+    "username": "concurrent2",
+    "password": "concurrent123"
+}
+
+### ============================================
+### 测试说明
+### ============================================
+### 
+### 1. 执行顺序建议：
+###    - 先执行注册测试（1-3节）
+###    - 再执行登录测试（4-5节）
+###    - 然后执行令牌相关测试（6-11节）
+###    - 最后执行完整流程和安全测试（12-15节）
+### 
+### 2. 令牌替换说明：
+###    - 登录成功后，复制返回的accessToken和refreshToken
+###    - 将后续请求中的占位符替换为实际令牌值
+### 
+### 3. 预期结果：
+###    - 正常请求应返回2xx状态码
+###    - 验证错误应返回400状态码
+###    - 认证错误应返回401状态码
+###    - 冲突错误应返回409状态码
+### 
+### 4. 清理测试数据：
+###    - 测试完成后可通过数据库清理测试用户
+###    - 或重启应用使用内存数据库自动清理

@@ -146,7 +146,7 @@ class UserServiceImplTest {
 
             assertTrue(exception.getMessage().contains("邮箱"));
             assertTrue(exception.getMessage().contains("已存在"));
-            verify(userMapper, times(2)).selectCount(any());
+            verify(userMapper, times(2)).selectCount(any()); // 只检查用户名和邮箱，邮箱已存在时不会检查手机号
             verify(userMapper, never()).insert(any(User.class));
         }
 
@@ -195,19 +195,44 @@ class UserServiceImplTest {
         }
 
         @Test
-        @DisplayName("创建用户不提供邮箱和手机号 - 成功")
-        void createUser_不提供邮箱和手机号_成功() {
-            validCreateRequest.setEmail(null);
+        @DisplayName("创建用户不提供真实姓名 - 抛出异常")
+        void createUser_不提供真实姓名_抛出异常() {
+            validCreateRequest.setRealName(null);
+
+            BusinessException exception = assertThrows(BusinessException.class,
+                    () -> userService.createUser(validCreateRequest));
+
+            assertTrue(exception.getMessage().contains("真实姓名不能为空"));
+            verify(userMapper, never()).selectCount(any());
+            verify(userMapper, never()).insert(any(User.class));
+        }
+
+        @Test
+        @DisplayName("创建用户不提供手机号 - 抛出异常")
+        void createUser_不提供手机号_抛出异常() {
             validCreateRequest.setPhoneNumber(null);
 
-            when(userMapper.selectCount(any())).thenReturn(0L); // 用户名不存在
+            BusinessException exception = assertThrows(BusinessException.class,
+                    () -> userService.createUser(validCreateRequest));
+
+            assertTrue(exception.getMessage().contains("手机号不能为空"));
+            verify(userMapper, never()).selectCount(any());
+            verify(userMapper, never()).insert(any(User.class));
+        }
+
+        @Test
+        @DisplayName("创建用户不提供邮箱 - 成功")
+        void createUser_不提供邮箱_成功() {
+            validCreateRequest.setEmail(null);
+
+            when(userMapper.selectCount(any())).thenReturn(0L); // 用户名和手机号不存在
             when(userMapper.insert(any(User.class))).thenReturn(1);
 
             UserResponse response = userService.createUser(validCreateRequest);
 
             assertNotNull(response);
             assertEquals("testuser001", response.getUsername());
-            verify(userMapper, times(1)).selectCount(any()); // 只检查用户名
+            verify(userMapper, times(2)).selectCount(any()); // 检查用户名和手机号
             verify(userMapper, times(1)).insert(any(User.class));
         }
     }

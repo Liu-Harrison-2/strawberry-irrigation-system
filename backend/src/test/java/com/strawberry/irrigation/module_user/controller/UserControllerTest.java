@@ -15,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.OffsetDateTime;
@@ -43,6 +44,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
+@TestPropertySource(properties = {
+    "jwt.secret=test-jwt-secret-key-for-controller-testing-only",
+    "jwt.issuer=smart-irrigation-test",
+    "jwt.access-token.expires-in-minutes=60",
+    "jwt.refresh-token.expires-in-days=7"
+})
 @DisplayName("用户管理控制器测试")
 class UserControllerTest {
 
@@ -198,16 +205,58 @@ class UserControllerTest {
         }
 
         @Test
-        @DisplayName("用户名已存在 - 返回400状态码")
-        void createUser_用户名已存在_返回400状态码() throws Exception {
-            when(userService.createUser(any(UserCreateRequest.class)))
-                    .thenThrow(new BusinessException(400, "用户名已存在"));
+        @DisplayName("真实姓名为空 - 返回400状态码")
+        void createUser_真实姓名为空_返回400状态码() throws Exception {
+            validCreateRequest.setRealName(null);
 
             mockMvc.perform(post("/api/users")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(validCreateRequest)))
                     .andDo(print())
                     .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @DisplayName("用户名已存在 - 返回400状态码")
+        void createUser_用户名已存在_返回400状态码() throws Exception {
+            when(userService.createUser(any(UserCreateRequest.class)))
+                    .thenThrow(new BusinessException("用户名已存在"));
+
+            mockMvc.perform(post("/api/users")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(validCreateRequest)))
+                    .andDo(print())
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @DisplayName("手机号为空 - 返回400状态码")
+        void createUser_手机号为空_返回400状态码() throws Exception {
+            validCreateRequest.setPhoneNumber(null); // 手机号为空
+
+            mockMvc.perform(post("/api/users")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(validCreateRequest)))
+                    .andDo(print())
+                    .andExpect(status().isBadRequest());
+
+            verify(userService, never()).createUser(any(UserCreateRequest.class));
+        }
+
+        @Test
+        @DisplayName("邮箱为空 - 返回201状态码")
+        void createUser_邮箱为空_返回201状态码() throws Exception {
+            validCreateRequest.setEmail(null); // 邮箱为空，应该允许
+
+            when(userService.createUser(any(UserCreateRequest.class)))
+                    .thenReturn(mockUserResponse);
+
+            mockMvc.perform(post("/api/users")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(validCreateRequest)))
+                    .andDo(print())
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath("$.username").value("testuser"));
 
             verify(userService, times(1)).createUser(any(UserCreateRequest.class));
         }
